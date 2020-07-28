@@ -14,7 +14,7 @@ const ssm = new SSM({
 });
 const params = [
   {
-    name: "/production/service/secrets.json"
+    name: "/production/service/secrets.json",
     default: JSON.stringify({
       password: process.env.PASSWORD
     })
