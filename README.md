@@ -1,5 +1,7 @@
 # AWS related secret management helpers
 
+[![npm](https://img.shields.io/npm/v/@viperhq/secrets.svg)](https://www.npmjs.com/package/@viperhq/secrets)
+
 ## Usage
 
 ### SSM
