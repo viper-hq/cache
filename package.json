@@ -1,0 +1,45 @@
+{
+  "name": "@viperhq/secrets",
+  "version": "1.0.0",
+  "description": "AWS related secret management helpers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "pretty": "pretty-quick",
+    "test": "jest",
+    "build": "tsc",
+    "prepublish": "tsc"
+  },
+  "author": "Attila Varga <attila@artit.io>",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/viper-hq/secrets",
+  "bugs": {
+    "url": "https://github.com/viper-hq/secrets/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viper-hq/secrets.git"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.3",
+    "@types/node": "^13.7.5",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.2"
+  },
+  "keywords": [
+    "SSM",
+    "secrets",
+    "fs"
+  ],
+  "dependencies": {
+    "@types/rimraf": "^3.0.0",
+    "aws-sdk": "^2.722.0",
+    "rimraf": "^3.0.2"
+  }
+}
