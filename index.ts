@@ -7,7 +7,11 @@ export interface SSMOptions {
   /**
    * Region to query
    */
-  region: string;
+  region?: string;
+  /**
+   * External client
+   */
+  client?: AWS.SSM
   /**
    * Error reporting on file system or connection errors
    * By default, it falls back to the default value
@@ -68,7 +72,10 @@ export class SSM {
       // default error logger is the console.error
       this.options.onError = console.error;
     }
-    this.client = new AWS.SSM(clientConfiguration);
+    this.client = this.options.client;
+    if (!this.client) {
+      this.client = new AWS.SSM(clientConfiguration);
+    }
   }
   async put(params: SSMParameterPut): Promise<string> {
     const optValues = {} as Partial<AWS.SSM.PutParameterRequest>;
