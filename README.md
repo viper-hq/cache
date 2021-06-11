@@ -33,3 +33,53 @@ console.log(result);
 }
 */
 ```
+
+#### batchDelete
+
+```typescript
+const ssm = new SSM({
+  region: "us-east-1"
+});
+const params = [
+  {
+    name: "/production/service/secrets.json",
+    default: JSON.stringify({
+      password: process.env.PASSWORD
+    })
+  }
+];
+await ssm.batchDelete(params);
+const result = await ssm.batchGet(params);
+console.log(result);
+/*
+{
+  "/production/service/secrets.json": "{\"password\":\"process.env.PASSWORD\"}"
+}
+*/
+```
+
+#### put
+
+```typescript
+const ssm = new SSM({
+  region: "us-east-1"
+});
+const params = [
+  {
+    name: "/production/service/secrets.json",
+    content: JSON.stringify({
+      password: process.env.PASSWORD
+    }),
+    encrypted: true,
+    overwrite: true
+  }
+];
+await ssm.put(params[0]);
+const result = await ssm.batchGet(params);
+console.log(result);
+/*
+{
+  "/production/service/secrets.json": "{\"password\":\"process.env.PASSWORD\"}"
+}
+*/
+```

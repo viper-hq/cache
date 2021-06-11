@@ -6,6 +6,29 @@ import path from "path";
 
 const rootDir = path.join(__dirname, "..", ".tmp");
 
+beforeAll(async () => {
+  const ssm = new SSM({
+    region: "us-east-2"
+  });
+  await ssm.put({
+    name: "param1",
+    content: JSON.stringify({}),
+    encrypted: true,
+    overwrite: true
+  });
+});
+
+afterAll(async () => {
+  const ssm = new SSM({
+    region: "us-east-2"
+  });
+  await ssm.batchDelete([
+    {
+      name: "param1"
+    }
+  ]);
+});
+
 beforeEach(() => {
   rimraf.sync(rootDir);
 });

@@ -15,6 +15,14 @@ export interface SSMOptions {
   onError?: (err: Error) => any;
 }
 
+export interface SSMParameterPut extends SSMParameter {
+  content: string;
+  encrypted?: boolean;
+  description?: string;
+  keyId?: string;
+  overwrite?: boolean;
+}
+
 export interface SSMParameter {
   /**
    * Name (or path) of the parameter
@@ -33,8 +41,8 @@ export interface SSMParameter {
 /**
  * Contains parameter, utf8 text pairs
  */
-export type SSMParameterMap = {
-  [name: string]: string;
+export type SSMParameterMap<T = string> = {
+  [name: string]: T;
 };
 
 /**
@@ -61,6 +69,51 @@ export class SSM {
       this.options.onError = console.error;
     }
     this.client = new AWS.SSM(clientConfiguration);
+  }
+  async put(params: SSMParameterPut): Promise<string> {
+    const optValues = {} as Partial<AWS.SSM.PutParameterRequest>;
+    if (params.keyId) {
+      optValues.KeyId = params.keyId;
+    }
+    if (params.description) {
+      optValues.Description = params.description;
+    }
+    await this.client
+      .putParameter({
+        Name: params.name,
+        Value: params.content,
+        Type: params.encrypted ? "SecureString" : "String",
+        Overwrite: params.overwrite,
+        ...optValues
+      })
+      .promise();
+    return (await this.batchGet([params]))[params.name];
+  }
+  async batchDelete(parameters: SSMParameter[]): Promise<string[]> {
+    const response = await this.client
+      .deleteParameters({
+        Names: parameters.map(p => p.name)
+      })
+      .promise();
+    const responseMap = response.DeletedParameters.reduce(
+      (memo: SSMParameterMap<boolean>, act) => {
+        memo[act] = true;
+        return memo;
+      },
+      {}
+    );
+    const result = await Promise.all(
+      parameters.map(async param => {
+        if (!responseMap[param.name]) {
+          throw new Error(`${param.name} is not deleted!`);
+        }
+        if (param.target) {
+          await fs.unlink(param.target);
+        }
+        return param.name;
+      })
+    );
+    return result;
   }
   async batchGet(parameters: SSMParameter[]): Promise<SSMParameterMap> {
     const response = await this.client
@@ -98,7 +151,7 @@ export class SSM {
           // replaces the file if exists
           const fh = await fs.open(param.target, "w");
           await fs.writeFile(fh, text, "utf8");
-          await new Promise((resolve, reject) =>
+          await new Promise<void>((resolve, reject) =>
             // we are making sure the file is written to the disk if we want to start another process
             // or something is polling or watching
             fsync(fh.fd, err => {
